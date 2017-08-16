@@ -1,16 +1,15 @@
 import Vue from "vue";
-import HelloComponent from "./components/Hello.vue";
+import CalcComponent from "./components/Calc.vue";
 
 let v = new Vue({
     el: "#app",
     template: `
     <div>
-        Name: <input v-model="name" type="text">
-        <hello-component :name="name" :initialEnthusiasm="5" />
+        <calc-component />
     </div>
     `,
-    data: { name: "World" },
+    data: { },
     components: {
-        HelloComponent
+        CalcComponent
     }
 });
