@@ -1,99 +1,141 @@
 <template>
     <div>
-        <div>
-            <p>
-                <label>
-                    Площадь м<sup>2</sup>
-                    <input v-model="area">
-                </label>
-            </p>
-            <p>
-                <label>
-                    Срок месяцы
-                    <input v-model="months">
-                </label>
-            </p>
-            <p>
-                <label>
-                    Средняя выработка м<sup>2</sup> / чел * год
-                    <input v-model="perf">
-                </label>
-            </p>
-            <p>
-                <label>
-                    Рабочих часов в году
-                    <input v-model="workHoursInYear">
-                </label>
-            </p>
-        </div>
-        <div>
-            Соотношение стадий
-            <div>
-                По времени
+        <div class="panel panel-default">
+            <div class="panel-body">
                 <p>
                     <label>
-                        АК
-                        <input v-model="akTimePercent">
+                        Площадь (м<sup>2</sup>)
+                        <input v-model="area">
                     </label>
                 </p>
                 <p>
                     <label>
-                        П
-                        <input v-model="pTimePercent">
+                        Срок (месяцы)
+                        <input v-model="months">
                     </label>
                 </p>
                 <p>
                     <label>
-                        Р
-                        <input v-model="rTimePercent">
+                        Средняя выработка (м<sup>2</sup> / чел * год)
+                        <input v-model="perf">
                     </label>
                 </p>
-            </div>
-            <div>
-                По трудозатратам
-                <p>
+                <p v-if="false">
                     <label>
-                        АК
-                        <input v-model="akWorkPercent">
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        П
-                        <input v-model="pWorkPercent">
-                    </label>
-                </p>
-                <p>
-                    <label>
-                        Р
-                        <input v-model="rWorkPercent">
+                        Рабочих часов в году
+                        <input v-model="workHoursInYear">
                     </label>
                 </p>
             </div>
         </div>
-        <div>
-            <p>АК: {{akTime.toFixed(1)}} мес, {{akWork.toFixed(1)}} чел * мес</p>
-            <p>П: {{pTime.toFixed(1)}} мес, {{pWork.toFixed(1)}} чел * мес</p>
-            <p>Р: {{rTime.toFixed(1)}} мес, {{rWork.toFixed(1)}} чел * мес</p>
-        </div>
-        <div>
-            Соотношение специализаций по стадиям
-            <div v-for="spec in specs">
-                АК
-                <p><label>АР <input v-model="spec.arPart"></label></p>
-                <p><label>КР <input v-model="spec.krPart"></label></p>
-                <p><label>Е <input v-model="spec.ePart"></label></p>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>Соотношение стадий</h4>
+                <div>
+                    <h5>По времени</h5>
+                    <small class="err" v-if="!isValidPercent([akTimePercent, pTimePercent, rTimePercent])">сумма не 100%
+                    </small>
+                    <p>
+                        <label>
+                            АК
+                            <input v-model="akTimePercent">
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            П
+                            <input v-model="pTimePercent">
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            Р
+                            <input v-model="rTimePercent">
+                        </label>
+                    </p>
+                </div>
+                <div>
+                    <h5>По трудозатратам</h5>
+                    <small class="err" v-if="!isValidPercent([akWorkPercent, pWorkPercent, rWorkPercent])">сумма не 100%
+                    </small>
+                    <p>
+                        <label>
+                            АК
+                            <input v-model="akWorkPercent">
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            П
+                            <input v-model="pWorkPercent">
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            Р
+                            <input v-model="rWorkPercent">
+                        </label>
+                    </p>
+                </div>
             </div>
         </div>
-        <div>
-            Необходимо сотрудников по специализациям
-            <div v-for="specTime in specTimes">
-                <p><b>{{specTime.name}}</b></p>
-                <p>АР {{specTime.ar.toFixed(1)}} чел</p>
-                <p>КР {{specTime.kr.toFixed(1)}} чел</p>
-                <p>Е {{specTime.e.toFixed(1)}} чел</p>
+        <div class="panel panel-default">
+            <div class="panel-heading">Общие трудозатраты</div>
+            <div class="panel-body">
+                <p>АК: {{akTime.toFixed(1)}} мес, {{akWork.toFixed(1)}} чел * мес</p>
+                <p>П: {{pTime.toFixed(1)}} мес, {{pWork.toFixed(1)}} чел * мес</p>
+                <p>Р: {{rTime.toFixed(1)}} мес, {{rWork.toFixed(1)}} чел * мес</p>
             </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Соотношение специализаций по стадиям</div>
+            <table class="input-table panel-body">
+                <thead>
+                <tr>
+                    <th>Стадия</th>
+                    <th>АР</th>
+                    <th>КР</th>
+                    <th>Е</th>
+                    <th>ошибка</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="spec in specs">
+                    <td><b>{{spec.name}}</b></td>
+                    <td><label><input v-model="spec.arPart"></label></td>
+                    <td><label><input v-model="spec.krPart"></label></td>
+                    <td><label><input v-model="spec.ePart"></label></td>
+                    <td>
+                        <small class="err" v-if="!isValidPercent([spec.arPart, spec.krPart, spec.ePart])">
+                            не 100%
+                        </small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Необходимо сотрудников по специализациям</div>
+            <table class="mytable panel-body">
+                <thead>
+                <tr>
+                    <th>Стадия</th>
+                    <th>АР  чел</th>
+                    <th>КР  чел</th>
+                    <th>Е  чел</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="specTime in specTimes">
+                    <td><b>{{specTime.name}}</b></td>
+                    <td>{{specTime.ar.toFixed(1)}}</td>
+                    <td>{{specTime.kr.toFixed(1)}}</td>
+                    <td>{{specTime.e.toFixed(1)}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="footer"></p>
     </div>
 </template>
 
@@ -136,7 +178,11 @@
                 ]
             }
         },
-        methods: {},
+        methods: {
+            isValidPercent(parts: number[]): boolean{
+                return Math.abs(parts.reduce((a, c) => a + Number(c), 0) - 100) < 0.1;
+            }
+        },
         computed: {
             neededWork(): number {
                 return this.area / this.perf * 12;
@@ -189,5 +235,27 @@
 </script>
 
 <style>
+    .err {
+        background-color: indianred;
+        color: whitesmoke;
+        padding: 1px;
+        border-radius: 2px;
+    }
 
+    .mytable {
+        border-spacing: 0;
+    }
+
+    .mytable td, .mytable th {
+        padding: 2px;
+        border: 1px solid black;
+    }
+
+    label {
+        font-weight: normal;
+    }
+
+    .input-table input {
+        width: 50px;
+    }
 </style>
